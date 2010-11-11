@@ -29,6 +29,7 @@ void *get_in_addr(struct sockaddr *sa)
 
 int main(void)
 {
+
     int sockfd;
     struct addrinfo hints, *servinfo, *p;
     int rv;
@@ -74,6 +75,10 @@ int main(void)
 
     printf("listener: waiting to recvfrom...\n");
 
+    bool gameOn = true;
+    while (gameOn == true)
+    {
+
     addr_len = sizeof their_addr;
     if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,
         (struct sockaddr *)&their_addr, &addr_len)) == -1) {
@@ -88,8 +93,8 @@ int main(void)
     printf("listener: packet is %d bytes long\n", numbytes);
     buf[numbytes] = '\0';
     printf("listener: packet contains \"%s\"\n", buf);
+    }
+    //close(sockfd);
 
-    close(sockfd);
-
-    return 0;
+    //return 0;
 }
