@@ -16,7 +16,7 @@ Filename:    GameServer.h
 #include <arpa/inet.h>
 #include <netdb.h>
 
-#define MAXBUFLEN 100
+#define MAXBUFLEN 10;
 
 
 class GameServer
@@ -41,16 +41,10 @@ protected:
     int rv;
     int numbytes;
     struct sockaddr_storage their_addr;
-    char mBufferFromClient[MAXBUFLEN];
     socklen_t addr_len;
     char s[INET6_ADDRSTRLEN];
     const char* mPort;
     int mMaxBufferLength;
-
-
-
-
-
 };
 
 #endif
