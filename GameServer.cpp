@@ -18,10 +18,13 @@ GameServer::~GameServer(void)
 
 int main(int argc, char *argv[])
 {
+
+    GameServer* gameServer = new GameServer();
+
     bool gameOn = true;
     while (gameOn == true)
     {
-        GameServer* gameServer = new GameServer();
+
         gameServer->processRequests();
     }
 }
