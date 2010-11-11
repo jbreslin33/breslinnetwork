@@ -16,9 +16,8 @@ Filename:    GameServer.h
 #include <arpa/inet.h>
 #include <netdb.h>
 
-#define MYPORT "4950"    // the port users will be connecting to
-
 #define MAXBUFLEN 100
+
 
 class GameServer
 {
@@ -26,7 +25,7 @@ class GameServer
 
 
 public:
-    GameServer(void);
+    GameServer(const char* port);
     virtual ~GameServer(void);
 
     void *get_in_addr(struct sockaddr *sa);
@@ -42,9 +41,13 @@ protected:
     int rv;
     int numbytes;
     struct sockaddr_storage their_addr;
-    char buf[MAXBUFLEN];
+    char mBufferFromClient[MAXBUFLEN];
     socklen_t addr_len;
     char s[INET6_ADDRSTRLEN];
+    const char* mPort;
+    int mMaxBufferLength;
+
+
 
 
 
