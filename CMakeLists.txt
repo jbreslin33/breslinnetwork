@@ -46,10 +46,10 @@ set(SRCS
 
 add_executable(GameServer WIN32 ${HDRS} ${SRCS})
 
-set_target_properties(GameServer PROPERTIES DEBUG_POSTFIX _d)
+#set_target_properties(GameServer PROPERTIES DEBUG_POSTFIX _d)
 
 
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
+#file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist/bin)
 
 
 
