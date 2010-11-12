@@ -6,10 +6,10 @@ Filename:    ListenServer.cpp
 #include "ListenServer.h"
 
 //-------------------------------------------------------------------------------------
-ListenServer::ListenServer(const char* port)
+ListenServer::ListenServer()
 {
     mMaxBufferLength = MAXBUFLEN;
-    mPort = port;
+    mPort = "4950";
     initializeVariables();
     initializeListener();
 }
@@ -20,14 +20,15 @@ ListenServer::~ListenServer(void)
 
 int main(int argc, char *argv[])
 {
+/*
+    ListenServer* listenServer = new ListenServer("4950");
 
-    ListenServer* gameServer = new ListenServer("4950");
-
-    bool gameOn = true;
-    while (gameOn == true)
+    bool listenOn = true;
+    while (listenOn == true)
     {
-        gameServer->processRequests();
+        listenServer->processRequests();
     }
+    */
 }
 
 void *ListenServer::get_in_addr(struct sockaddr *sa)

@@ -26,14 +26,14 @@ class ListenServer
 
 
 public:
-    ListenServer(const char* port);
+    ListenServer();
     virtual ~ListenServer(void);
 
     void *get_in_addr(struct sockaddr *sa);
     void initializeVariables();
     bool initializeListener();
     void processRequests();
-    void setGameServer(GameServer* gameServer);
+    void setGameServer(GameServer* gameServer) { mGameServer = gameServer; }
 
 
 protected:
