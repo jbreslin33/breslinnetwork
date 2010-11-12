@@ -16,6 +16,8 @@ public:
     GameServer();
     virtual ~GameServer(void);
 
+    void processClientMessage(char newClientMessage[10]);
+
 protected:
 
 

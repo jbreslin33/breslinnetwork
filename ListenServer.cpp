@@ -4,6 +4,7 @@ Filename:    ListenServer.cpp
 */
 
 #include "ListenServer.h"
+#include "GameServer.h"
 
 //-------------------------------------------------------------------------------------
 ListenServer::ListenServer()
@@ -16,19 +17,6 @@ ListenServer::ListenServer()
 //-------------------------------------------------------------------------------------
 ListenServer::~ListenServer(void)
 {
-}
-
-int main(int argc, char *argv[])
-{
-/*
-    ListenServer* listenServer = new ListenServer("4950");
-
-    bool listenOn = true;
-    while (listenOn == true)
-    {
-        listenServer->processRequests();
-    }
-    */
 }
 
 void *ListenServer::get_in_addr(struct sockaddr *sa)
@@ -107,6 +95,7 @@ void ListenServer::processRequests()
     {
 
         printf("We have a Game Server\n");
+        mGameServer->processClientMessage(newClientMessage);
     }
     else
     {
