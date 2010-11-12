@@ -6,7 +6,7 @@ Client::Client()
 
 }
 
-Client~::Client(void)
+Client::~Client(void)
 {
 
 }
