@@ -1,12 +1,12 @@
 /*
 -----------------------------------------------------------------------------
-Filename:    GameServer.cpp
+Filename:    ListenServer.cpp
 */
 
-#include "GameServer.h"
+#include "ListenServer.h"
 
 //-------------------------------------------------------------------------------------
-GameServer::GameServer(const char* port)
+ListenServer::ListenServer(const char* port)
 {
     mMaxBufferLength = MAXBUFLEN;
     mPort = port;
@@ -14,14 +14,14 @@ GameServer::GameServer(const char* port)
     initializeListener();
 }
 //-------------------------------------------------------------------------------------
-GameServer::~GameServer(void)
+ListenServer::~ListenServer(void)
 {
 }
 
 int main(int argc, char *argv[])
 {
 
-    GameServer* gameServer = new GameServer("4950");
+    ListenServer* gameServer = new ListenServer("4950");
 
     bool gameOn = true;
     while (gameOn == true)
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     }
 }
 
-void *GameServer::get_in_addr(struct sockaddr *sa)
+void *ListenServer::get_in_addr(struct sockaddr *sa)
 {
     if (sa->sa_family == AF_INET) {
         return &(((struct sockaddr_in*)sa)->sin_addr);
@@ -39,8 +39,10 @@ void *GameServer::get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-void GameServer::initializeVariables()
+void ListenServer::initializeVariables()
 {
+    mGameServer = NULL;
+
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC; // set to AF_INET to force IPv4
     hints.ai_socktype = SOCK_DGRAM;
@@ -48,7 +50,7 @@ void GameServer::initializeVariables()
 }
 
 
-bool GameServer::initializeListener()
+bool ListenServer::initializeListener()
 {
     if ((rv = getaddrinfo(NULL, mPort, &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
@@ -83,7 +85,7 @@ bool GameServer::initializeListener()
 }
 
 
-void GameServer::processRequests()
+void ListenServer::processRequests()
 {
     //Did something go wrong?
     addr_len = sizeof their_addr;
@@ -99,4 +101,14 @@ void GameServer::processRequests()
         exit(1);
     }
     printf("listener: packet contains \"%s\"\n", newClientMessage);
+
+    if (mGameServer != NULL)
+    {
+
+        printf("We have a Game Server\n");
+    }
+    else
+    {
+        printf("No Game Server, do nothing\n");
+    }
 }

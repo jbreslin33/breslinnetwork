@@ -1,9 +1,9 @@
 /*
 -----------------------------------------------------------------------------
-Filename:    GameServer.h
+Filename:    ListenServer.h
 */
-#ifndef __GAMESERVER_h_
-#define __GAMESERVER_h_
+#ifndef __LISTENSERVER_h_
+#define __LISTENSERVER_h_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,23 +18,27 @@ Filename:    GameServer.h
 
 #define MAXBUFLEN 10;
 
+class GameServer;
 
-class GameServer
+class ListenServer
 {
 
 
 
 public:
-    GameServer(const char* port);
-    virtual ~GameServer(void);
+    ListenServer(const char* port);
+    virtual ~ListenServer(void);
 
     void *get_in_addr(struct sockaddr *sa);
     void initializeVariables();
     bool initializeListener();
     void processRequests();
+    void setGameServer(GameServer* gameServer);
 
 
 protected:
+
+    GameServer* mGameServer;
 
     int sockfd;
     struct addrinfo hints, *servinfo, *p;
