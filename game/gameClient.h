@@ -35,7 +35,7 @@ typedef struct clientLoginData
 	clientLoginData	*next;
 } clientLoginData;
 
-extern char serverIP[32];
+//extern char serverIP[32];
 
 
 typedef struct
@@ -125,7 +125,7 @@ private:
 
 
 public:
-	GameClient();
+	GameClient(const char* serverIP);
 	~GameClient();
 
     void createPlayer(int index);
@@ -156,6 +156,9 @@ public:
 
 
 	GameClient *next;
+
+	const char* mServerIP;
+
 };
 
 #endif

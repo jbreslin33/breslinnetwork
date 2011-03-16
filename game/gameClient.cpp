@@ -3,9 +3,9 @@
 GameClient* game;
 bool keys[256];
 
-char serverIP[32] = "192.168.2.112";
-
-
+//char serverIP[32] = "192.168.2.112";
+//char serverIP[32];
+//char* serverIP;
 void GameClient::createPlayer(int index)
 {
 	Ogre::Entity* NinjaEntity = mSceneMgr->createEntity("ninja.mesh");
@@ -104,8 +104,11 @@ bool GameClient::frameRenderingQueued(const Ogre::FrameEvent& evt)
  // Name: empty()
  // Desc:
  //-----------------------------------------------------------------------------
- GameClient::GameClient()
+ GameClient::GameClient(const char* serverIP)
  {
+
+	mServerIP = serverIP;
+
  	networkClient	= new dreamClient;
  	clientList		= NULL;
  	localClient		= NULL;
@@ -406,11 +409,7 @@ bool GameClient::frameRenderingQueued(const Ogre::FrameEvent& evt)
 //-----------------------------------------------------------------------------
 void GameClient::StartConnection()
 {
-//	LogString("StartConnection");
-
-	//gameIndex = ind;
-
-	int ret = networkClient->Initialise("", serverIP, 30004);
+	int ret = networkClient->Initialise("", mServerIP, 30004);
 
 	if(ret == DREAMSOCK_CLIENT_ERROR)
 	{
@@ -929,8 +928,13 @@ extern "C" {
     int main(int argc, char *argv[])
 #endif
     {
-        // Create application object
-         game = new GameClient;
+
+        //ClientSideBaseGame* mClientSideBaseGame;
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+        game = new GameClient(strCmdLine);
+#else
+        game = new GameClient(argv[1]);
+#endif
 
 		//game = new GameClient;
 	    game->StartConnection();
