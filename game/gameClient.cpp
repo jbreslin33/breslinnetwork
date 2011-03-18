@@ -333,18 +333,17 @@ bool GameClient::frameRenderingQueued(const Ogre::FrameEvent& evt)
             localClient->myNode->translate(transVector * rendertime, Ogre::Node::TS_LOCAL);
 
  }
-
- //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
  // Name: empty()
  // Desc:
  //-----------------------------------------------------------------------------
- void GameClient::MoveObjects(void)
+ void GameClient::MoveRemotePlayers(void)
  {
  	if(!localClient)
  		return;
 
  	clientData *client = clientList;
-
+ 
  	Ogre::Vector3 transVector = Ogre::Vector3::ZERO;
 
  	for( ; client != NULL; client = client->next)
@@ -352,7 +351,7 @@ bool GameClient::frameRenderingQueued(const Ogre::FrameEvent& evt)
  		// Remote players
  		if(client != localClient)
  		{
- 			CalculateVelocity(&client->command, frametime);
+ 			CalculateVelocity(&client->command, rendertime);
 
  			client->command.origin.x += client->command.vel.x;
  			client->command.origin.y += client->command.vel.y;
@@ -364,10 +363,25 @@ bool GameClient::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 
  		}
+	}
+ }
+ //-----------------------------------------------------------------------------
+ // Name: empty()
+ // Desc:
+ //-----------------------------------------------------------------------------
+ void GameClient::MoveObjects(void)
+ {
+ 	if(!localClient)
+ 		return;
 
- 		//Local player
- 		else
- 		{
+ 	clientData *client = clientList;
+ 
+ 	Ogre::Vector3 transVector = Ogre::Vector3::ZERO;
+
+	for( ; client != NULL; client = client->next)
+ 	{
+		if(client == localClient)
+		{
  			client->command.origin.x = client->command.predictedOrigin.x;
  			client->command.origin.y = client->command.predictedOrigin.y;
 
@@ -391,9 +405,9 @@ bool GameClient::frameRenderingQueued(const Ogre::FrameEvent& evt)
  			LogString("transVector.y %f: ", transVector.y);
  			LogString("predictedOrigin.x %f: ", client->command.predictedOrigin.x);
  			LogString("predictedOrigin.y %f: ", client->command.predictedOrigin.y);
- */
- 		}
- 	}
+*/
+		}
+ 	 }
  }
 
 /***********************************************************************************
@@ -876,6 +890,8 @@ void GameClient::RunNetwork(int msec)
 
 	static int time = 0;
 	time += msec;
+
+	MoveRemotePlayers();
 
 	// Framerate is too high
 	if(time < (1000 / 60)) {

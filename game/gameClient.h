@@ -87,6 +87,7 @@ private:
 	void	PredictMovement(int prevFrame, int curFrame);
 	void	MoveObjects(void);
 	void    MovePlayer(void);
+    void	MoveRemotePlayers(void);
 
 	void	AddClient(int local, int index, char *name);
 	void	RemoveClient(int index);
