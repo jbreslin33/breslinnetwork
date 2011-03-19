@@ -360,7 +360,7 @@ bool GameClient::frameRenderingQueued(const Ogre::FrameEvent& evt)
              transVector.y = client->command.origin.y;
 
  			//client->myNode->setPosition(transVector * rendertime);
-			  client->myNode->translate  (transVector * rendertime, Ogre::Node::TS_LOCAL);
+			  client->myNode->translate  (transVector * rendertime, Ogre::Node::TS_WORLD);
 
 
  		}
