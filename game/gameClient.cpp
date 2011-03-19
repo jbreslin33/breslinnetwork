@@ -360,7 +360,7 @@ bool GameClient::frameRenderingQueued(const Ogre::FrameEvent& evt)
              //transVector.y = client->command.origin.y;
 
 			transVector.x = client->command.vel.x;
-			transVector.x = client->command.vel.y;
+			transVector.y = client->command.vel.y;
 			
 
  			//client->myNode->setPosition(transVector * rendertime);
