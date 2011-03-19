@@ -356,11 +356,15 @@ bool GameClient::frameRenderingQueued(const Ogre::FrameEvent& evt)
  			client->command.origin.x += client->command.vel.x;
  			client->command.origin.y += client->command.vel.y;
 
-             transVector.x = client->command.origin.x;
-             transVector.y = client->command.origin.y;
+             //transVector.x = client->command.origin.x;
+             //transVector.y = client->command.origin.y;
+
+			transVector.x = client->command.vel.x;
+			transVector.x = client->command.vel.y;
+			
 
  			//client->myNode->setPosition(transVector * rendertime);
-			  client->myNode->translate  (transVector * rendertime, Ogre::Node::TS_WORLD);
+			  client->myNode->translate  (transVector, Ogre::Node::TS_WORLD);
 
 
  		}
