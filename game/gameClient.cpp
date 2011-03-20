@@ -199,39 +199,6 @@ bool GameClient::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
  }
 
- //-----------------------------------------------------------------------------
- // Name: empty()
- // Desc:
- //-----------------------------------------------------------------------------
- void GameClient::CheckPredictionError(int a)
- {
- 	if(a < 0 && a > COMMAND_HISTORY_SIZE)
- 		return;
-
- 	float errorX =
- 		localClient->serverFrame.origin.x - localClient->frame[a].predictedOrigin.x;
-
- 	float errorY =
- 		localClient->serverFrame.origin.y - localClient->frame[a].predictedOrigin.y;
-
- 	// Fix the prediction error
- 	if( (errorX != 0.0f) || (errorY != 0.0f) )
- 	{
- 		localClient->frame[a].predictedOrigin.x = localClient->serverFrame.origin.x;
- 		localClient->frame[a].predictedOrigin.y = localClient->serverFrame.origin.y;
-
- 		localClient->frame[a].vel.x = localClient->serverFrame.vel.x;
- 		localClient->frame[a].vel.y = localClient->serverFrame.vel.y;
-
- 		LogString("Prediction error for frame %d:     %f, %f\n", a,
- 			errorX, errorY);
- 	}
- }
-
- //-----------------------------------------------------------------------------
- // Name: empty()
- // Desc:
- //-----------------------------------------------------------------------------
  void GameClient::CalculateVelocity(command_t *command, float frametime)
  {
  	float multiplier = 100.0f;
@@ -265,40 +232,6 @@ bool GameClient::frameRenderingQueued(const Ogre::FrameEvent& evt)
  		command->vel.x += multiplier * frametime;
  		//localClient->command.vel.x += multiplier * frametime;
  	}
- }
-
- //-----------------------------------------------------------------------------
- // Name: empty()
- // Desc:
- //-----------------------------------------------------------------------------
- void GameClient::PredictMovement(int prevFrame, int curFrame)
- {
- 	if(!localClient)
- 		return;
-
- 	float frametime = inputClient.frame[curFrame].msec / 1000.0f;
-
- 	localClient->frame[curFrame].key = inputClient.frame[curFrame].key;
-
- 	//
- 	// Player ->
- 	//
-
- 	// Process commands
- 	CalculateVelocity(&localClient->frame[curFrame], frametime);
-
- 	// Calculate new predicted origin
- 	localClient->frame[curFrame].predictedOrigin.x =
- 		localClient->frame[prevFrame].predictedOrigin.x + localClient->frame[curFrame].vel.x;
-
- 	localClient->frame[curFrame].predictedOrigin.y =
- 		localClient->frame[prevFrame].predictedOrigin.y + localClient->frame[curFrame].vel.y;
-
- 	// Copy values to "current" values
- 	localClient->command.predictedOrigin.x	= localClient->frame[curFrame].predictedOrigin.x;
- 	localClient->command.predictedOrigin.y	= localClient->frame[curFrame].predictedOrigin.y;
- 	localClient->command.vel.x				= localClient->frame[curFrame].vel.x;
- 	localClient->command.vel.y				= localClient->frame[curFrame].vel.y;
  }
 
  void GameClient::MovePlayer(void)
@@ -348,84 +281,22 @@ bool GameClient::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
  	for( ; client != NULL; client = client->next)
  	{
- 		// Remote players
- 		if(client != localClient)
- 		{
- 			CalculateVelocity(&client->command, rendertime);
+		CalculateVelocity(&client->command, rendertime);
 
- 			client->command.origin.x += client->command.vel.x;
- 			client->command.origin.y += client->command.vel.y;
+ 		client->command.origin.x += client->command.vel.x;
+ 		client->command.origin.y += client->command.vel.y;
 
-             //transVector.x = client->command.origin.x;
-             //transVector.y = client->command.origin.y;
+        //transVector.x = client->command.origin.x;
+        //transVector.y = client->command.origin.y;
 
-			transVector.x = client->command.vel.x;
-			transVector.y = client->command.vel.y;
+		transVector.x = client->command.vel.x;
+		transVector.y = client->command.vel.y;
 			
-
- 			//client->myNode->setPosition(transVector * rendertime);
-			  client->myNode->translate  (transVector, Ogre::Node::TS_WORLD);
-
-
- 		}
+		//client->myNode->setPosition(transVector * rendertime);
+	    client->myNode->translate  (transVector, Ogre::Node::TS_WORLD);
 	}
  }
- //-----------------------------------------------------------------------------
- // Name: empty()
- // Desc:
- //-----------------------------------------------------------------------------
- void GameClient::MoveObjects(void)
- {
- 	if(!localClient)
- 		return;
-
- 	clientData *client = clientList;
  
- 	Ogre::Vector3 transVector = Ogre::Vector3::ZERO;
-
-	for( ; client != NULL; client = client->next)
- 	{
-		if(client == localClient)
-		{
- 			client->command.origin.x = client->command.predictedOrigin.x;
- 			client->command.origin.y = client->command.predictedOrigin.y;
-
- 			//memcpy(&client->command, &inputClient.command, sizeof(command_t));
- 			//CalculateVelocity(&inputClient.command, frametime);
-
- 			//client->command.origin.x += client->command.vel.x;
- 			//client->command.origin.y += client->command.vel.y;
-
-             transVector.x = client->command.predictedOrigin.x;
-             transVector.y = client->command.predictedOrigin.y;
-
- 			//transVector.x = client->command.vel.x;
-             //transVector.y = client->command.vel.y;
-
- 			//client->myNode->translate(transVector, Ogre::Node::TS_LOCAL);
-             client->myNode->setPosition(transVector);
-
- /*
-             LogString("transVector.x %f: ", transVector.x);
- 			LogString("transVector.y %f: ", transVector.y);
- 			LogString("predictedOrigin.x %f: ", client->command.predictedOrigin.x);
- 			LogString("predictedOrigin.y %f: ", client->command.predictedOrigin.y);
-*/
-		}
- 	 }
- }
-
-/***********************************************************************************
-*
-*						CLIENT STUFF
-*
-**************************************************************************************/
-
-
-//-----------------------------------------------------------------------------
-// Name: empty()
-// Desc:
-//-----------------------------------------------------------------------------
 void GameClient::StartConnection()
 {
 	int ret = networkClient->Initialise("", mServerIP, 30004);
@@ -434,17 +305,11 @@ void GameClient::StartConnection()
 	{
 		char text[64];
 		sprintf(text, "Could not open client socket");
-
-		//MessageBox(NULL, text, "Error", MB_OK);
 	}
 
 	Connect();
 }
 
-//-----------------------------------------------------------------------------
-// Name: empty()
-// Desc:
-//-----------------------------------------------------------------------------
 void GameClient::ReadPackets(void)
 {
 	char data[1400];
@@ -525,10 +390,6 @@ void GameClient::ReadPackets(void)
 	}
 }
 
-//-----------------------------------------------------------------------------
-// Name: empty()
-// Desc:
-//-----------------------------------------------------------------------------
 void GameClient::AddClient(int local, int ind, char *name)
 {
 	// First get a pointer to the beginning of client list
@@ -605,10 +466,6 @@ void GameClient::AddClient(int local, int ind, char *name)
 
 }
 
-//-----------------------------------------------------------------------------
-// Name: empty()
-// Desc:
-//-----------------------------------------------------------------------------
 void GameClient::RemoveClient(int ind)
 {
 	clientData *list = clientList;
@@ -660,10 +517,6 @@ void GameClient::RemoveClient(int ind)
 
 }
 
-//-----------------------------------------------------------------------------
-// Name: empty()
-// Desc:
-//-----------------------------------------------------------------------------
 void GameClient::RemoveClients(void)
 {
 	clientData *list = clientList;
@@ -684,10 +537,6 @@ void GameClient::RemoveClients(void)
 	clients = 0;
 }
 
-//-----------------------------------------------------------------------------
-// Name: empty()
-// Desc:
-//-----------------------------------------------------------------------------
 void GameClient::SendCommand(void)
 {
 	if(networkClient->GetConnectionState() != DREAMSOCK_CONNECTED)
@@ -720,11 +569,6 @@ void GameClient::SendCommand(void)
 	}
 }
 
-
-//-----------------------------------------------------------------------------
-// Name: empty()
-// Desc:
-//-----------------------------------------------------------------------------
 void GameClient::SendRequestNonDeltaFrame(void)
 {
 	char data[1400];
@@ -737,10 +581,6 @@ void GameClient::SendRequestNonDeltaFrame(void)
 	networkClient->SendPacket(&message);
 }
 
-//-----------------------------------------------------------------------------
-// Name: empty()
-// Desc:
-//-----------------------------------------------------------------------------
 void GameClient::Connect(void)
 {
 	if(init)
@@ -756,10 +596,6 @@ void GameClient::Connect(void)
 	networkClient->SendConnect("myname");
 }
 
-//-----------------------------------------------------------------------------
-// Name: empty()
-// Desc:
-//-----------------------------------------------------------------------------
 void GameClient::Disconnect(void)
 {
 	if(!init)
@@ -774,10 +610,6 @@ void GameClient::Disconnect(void)
 	networkClient->SendDisconnect();
 }
 
-//-----------------------------------------------------------------------------
-// Name: empty()
-// Desc:
-//-----------------------------------------------------------------------------
 void GameClient::ReadMoveCommand(dreamMessage *mes, clientData *client)
 {
 	// Key
@@ -805,10 +637,6 @@ void GameClient::ReadMoveCommand(dreamMessage *mes, clientData *client)
 	}
 }
 
-//-----------------------------------------------------------------------------
-// Name: empty()
-// Desc:
-//-----------------------------------------------------------------------------
 void GameClient::ReadDeltaMoveCommand(dreamMessage *mes, clientData *client)
 {
 	int processedFrame;
@@ -840,19 +668,11 @@ void GameClient::ReadDeltaMoveCommand(dreamMessage *mes, clientData *client)
 		client->serverFrame.vel.x = mes->ReadFloat();
 		client->serverFrame.vel.y = mes->ReadFloat();
 
-		if(client == localClient)
-		{
-			CheckPredictionError(processedFrame);
-		}
+		client->command.origin.x = client->serverFrame.origin.x;
+		client->command.origin.y = client->serverFrame.origin.y;
 
-		else
-		{
-			client->command.origin.x = client->serverFrame.origin.x;
-			client->command.origin.y = client->serverFrame.origin.y;
-
-			client->command.vel.x = client->serverFrame.vel.x;
-			client->command.vel.y = client->serverFrame.vel.y;
-		}
+		client->command.vel.x = client->serverFrame.vel.x;
+		client->command.vel.y = client->serverFrame.vel.y;
 	}
 
 	// Read time to run command
@@ -910,26 +730,6 @@ void GameClient::RunNetwork(int msec)
 	// Read packets from server, and send new commands
 	ReadPackets();
 	SendCommand();
-
-	int ack = networkClient->GetIncomingAcknowledged();
-	int current = networkClient->GetOutgoingSequence();
-
-	// Check that we haven't gone too far
-	if(current - ack > COMMAND_HISTORY_SIZE)
-		return;
-
-	// Predict the frames that we are waiting from the server
-	for(int a = ack + 1; a < current; a++)
-	{
-		int prevframe = (a-1) & (COMMAND_HISTORY_SIZE-1);
-		int frame = a & (COMMAND_HISTORY_SIZE-1);
-
-		PredictMovement(prevframe, frame);
-	}
-
-	MoveObjects();
-
-
 }
 
 

@@ -77,14 +77,8 @@ typedef struct clientData
 class GameClient : public BaseApplication
 {
 private:
-	// Methods
-
-	// Client.cpp
-	void	DrawMap(void);
-
-	void	CheckPredictionError(int a);
 	void	CalculateVelocity(command_t *command, float frametime);
-	void	PredictMovement(int prevFrame, int curFrame);
+
 	void	MoveObjects(void);
 	void    MovePlayer(void);
     void	MoveRemotePlayers(void);
