@@ -3,19 +3,12 @@
 GameClient* game;
 bool keys[256];
 
-//char serverIP[32] = "192.168.2.112";
-//char serverIP[32];
-//char* serverIP;
 void GameClient::createPlayer(int index)
 {
 	Ogre::Entity* NinjaEntity = mSceneMgr->createEntity("ninja.mesh");
-	//Ogre::Entity* ogreHead = mSceneMgr->createEntity("Head", "ogrehead.mesh");
 	Ogre::SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
     node->attachObject(NinjaEntity);
-    //node->setPosition(Ogre::Vector3(10, 10, 10));
-
     clientData *client = game->GetClientPointer(index);
-
 	client->myNode = node;
 }
 //-------------------------------------------------------------------------------------
@@ -32,7 +25,6 @@ void GameClient::createScene(void)
 //-------------------------------------------------------------------------------------
 bool GameClient::processUnbufferedInput(const Ogre::FrameEvent& evt)
 {
-
     if (mKeyboard->isKeyDown(OIS::KC_I)) // Forward
     {
 		keys[VK_UP] = TRUE;
@@ -49,7 +41,6 @@ bool GameClient::processUnbufferedInput(const Ogre::FrameEvent& evt)
 	{
         keys[VK_DOWN] = FALSE;
 	}
-
     if (mKeyboard->isKeyDown(OIS::KC_J)) // Left - yaw or strafe
     {
 		keys[VK_LEFT] = TRUE;
@@ -76,79 +67,37 @@ bool GameClient::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
     if(!processUnbufferedInput(evt)) return false;
 
-
 	if(game != NULL)
 	{
 		game->CheckKeys();
-
 		game->RunNetwork(evt.timeSinceLastFrame * 1000);
-
 		rendertime = evt.timeSinceLastFrame;
-
-		//game->Frame();
 	}
-
     return ret;
 }
-//-------------------------------------------------------------------------------------
 
- /**************************************************************************************
- *
- *						CLIENT STUFF
- *
- ****************************************************************************************/
-
-
-
- //-----------------------------------------------------------------------------
- // Name: empty()
- // Desc:
- //-----------------------------------------------------------------------------
- GameClient::GameClient(const char* serverIP)
- {
-
+GameClient::GameClient(const char* serverIP)
+{
 	mServerIP = serverIP;
-
  	networkClient	= new dreamClient;
  	clientList		= NULL;
  	localClient		= NULL;
- 	clients			= 0;
-
  	memset(&inputClient, 0, sizeof(clientData));
-
  	frametime		= 0.0f;
-
  	rendertime		= 0.0f;
-
  	init			= false;
-
- 	gameIndex		= 0;
-
- 	next			= NULL;
  }
 
- //-----------------------------------------------------------------------------
- // Name: empty()
- // Desc:
- //-----------------------------------------------------------------------------
  GameClient::~GameClient()
  {
  	delete networkClient;
  }
 
- //-----------------------------------------------------------------------------
- // Name: empty()
- // Desc:
- //-----------------------------------------------------------------------------
  void GameClient::Shutdown(void)
  {
  	Disconnect();
  }
 
- //-----------------------------------------------------------------------------
- // Name: empty()
- // Desc:
- //-----------------------------------------------------------------------------
  clientData *GameClient::GetClientPointer(int index)
  {
  	for(clientData *clList = clientList; clList != NULL; clList = clList->next)
@@ -156,47 +105,34 @@ bool GameClient::frameRenderingQueued(const Ogre::FrameEvent& evt)
  		if(clList->index == index)
  			return clList;
  	}
-
  	return NULL;
  }
 
- //-----------------------------------------------------------------------------
- // Name: empty()
- // Desc:
- //-----------------------------------------------------------------------------
- void GameClient::CheckKeys(void)
- {
- 	inputClient.command.key = 0;
-
+void GameClient::CheckKeys(void)
+{
+	inputClient.command.key = 0;
  	if(keys[VK_ESCAPE])
  	{
  		Shutdown();
-
  		keys[VK_ESCAPE] = false;
  	}
-
  	if(keys[VK_DOWN])
  	{
  		inputClient.command.key |= KEY_DOWN;
  	}
-
  	if(keys[VK_UP])
  	{
  		inputClient.command.key |= KEY_UP;
  	}
-
  	if(keys[VK_LEFT])
  	{
  		inputClient.command.key |= KEY_LEFT;
  	}
-
  	if(keys[VK_RIGHT])
  	{
  		inputClient.command.key |= KEY_RIGHT;
  	}
-
  	inputClient.command.msec = (int) (frametime * 1000);
-
  }
 
  void GameClient::CalculateVelocity(command_t *command, float frametime)
@@ -205,77 +141,31 @@ bool GameClient::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
  	command->vel.x = 0.0f;
  	command->vel.y = 0.0f;
- 	//localClient->command.vel.x = 0.0f;
- 	//localClient->command.vel.y = 0.0f;
-
 
  	if(command->key & KEY_UP)
  	{
  		command->vel.y += multiplier * frametime;
- 		//localClient->command.vel.y += multiplier * frametime;
  	}
-
  	if(command->key & KEY_DOWN)
  	{
  		command->vel.y += -multiplier * frametime;
- 		//localClient->command.vel.y += -multiplier * frametime;
  	}
-
  	if(command->key & KEY_LEFT)
  	{
  		command->vel.x += -multiplier * frametime;
- 		//localClient->command.vel.x += -multiplier * frametime;
  	}
-
  	if(command->key & KEY_RIGHT)
  	{
  		command->vel.x += multiplier * frametime;
- 		//localClient->command.vel.x += multiplier * frametime;
  	}
  }
 
- void GameClient::MovePlayer(void)
- {
-
-         static Ogre::Real mMove = 100;
-         Ogre::Vector3 transVector = Ogre::Vector3::ZERO;
-
-
-         if(keys[VK_DOWN])
-         {
-                 transVector.y -= mMove;
-
-         }
-
-         if(keys[VK_UP])
-         {
-                 transVector.y += mMove;
-         }
-
-         if(keys[VK_LEFT])
-         {
-                 transVector.x -= mMove;
-         }
-
-         if(keys[VK_RIGHT])
-         {
-                 transVector.x += mMove;
-         }
-
-         if(localClient)
-            localClient->myNode->translate(transVector * rendertime, Ogre::Node::TS_LOCAL);
-
- }
-//-----------------------------------------------------------------------------
- // Name: empty()
- // Desc:
- //-----------------------------------------------------------------------------
- void GameClient::MoveRemotePlayers(void)
- {
+void GameClient::MoveRemotePlayers(void)
+{
  	if(!localClient)
- 		return;
+		return;
 
- 	clientData *client = clientList;
+	clientData *client = clientList;
  
  	Ogre::Vector3 transVector = Ogre::Vector3::ZERO;
 
@@ -306,7 +196,6 @@ void GameClient::StartConnection()
 		char text[64];
 		sprintf(text, "Could not open client socket");
 	}
-
 	Connect();
 }
 
@@ -414,11 +303,7 @@ void GameClient::AddClient(int local, int ind, char *name)
 		clientList->index = ind;
 		strcpy(clientList->nickname, name);
 
-		if(clients % 2 == 0)
-			createPlayer(ind);
-		else
-			createPlayer(ind);
-
+		createPlayer(ind);
 		clientList->next = NULL;
 	}
 	else
@@ -450,20 +335,12 @@ void GameClient::AddClient(int local, int ind, char *name)
 		list->next = NULL;
 		prev->next = list;
 
-		if(clients % 2 == 0)
-			createPlayer(ind);
-		else
-			createPlayer(ind);
-
-
+		createPlayer(ind);
 	}
-
-	clients++;
 
 	// If we just joined the game, request a non-delta compressed frame
 	if(local)
 		SendRequestNonDeltaFrame();
-
 }
 
 void GameClient::RemoveClient(int ind)
@@ -509,12 +386,8 @@ void GameClient::RemoveClient(int ind)
 			next = list->next;
 			free(list);
 		}
-
 		list = next;
 	}
-
-	clients--;
-
 }
 
 void GameClient::RemoveClients(void)
@@ -529,12 +402,9 @@ void GameClient::RemoveClients(void)
 			next = list->next;
 			free(list);
 		}
-
 		list = next;
 	}
-
 	clientList = NULL;
-	clients = 0;
 }
 
 void GameClient::SendCommand(void)
@@ -614,9 +484,6 @@ void GameClient::ReadMoveCommand(dreamMessage *mes, clientData *client)
 {
 	// Key
 	client->serverFrame.key				= mes->ReadByte();
-
-	// Heading
-	//client->serverFrame.heading			= mes->ReadShort();
 
 	// Origin
 	client->serverFrame.origin.x		= mes->ReadFloat();
@@ -711,8 +578,6 @@ void GameClient::BuildDeltaMoveCommand(dreamMessage *mes, clientData *theClient)
 //-----------------------------------------------------------------------------
 void GameClient::RunNetwork(int msec)
 {
-    //MovePlayer();
-
 	static int time = 0;
 	time += msec;
 
@@ -720,7 +585,6 @@ void GameClient::RunNetwork(int msec)
 
 	// Framerate is too high
 	if(time < (1000 / 60)) {
-        MovePlayer();
 		return;
 	}
 
@@ -731,8 +595,6 @@ void GameClient::RunNetwork(int msec)
 	ReadPackets();
 	SendCommand();
 }
-
-
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN

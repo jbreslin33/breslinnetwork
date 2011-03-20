@@ -35,9 +35,6 @@ typedef struct clientLoginData
 	clientLoginData	*next;
 } clientLoginData;
 
-//extern char serverIP[32];
-
-
 typedef struct
 {
 	float x;
@@ -73,87 +70,58 @@ typedef struct clientData
 	clientData	*next;
 } clientData;
 
-// The main application class interface
 class GameClient : public BaseApplication
 {
-private:
-	void	CalculateVelocity(command_t *command, float frametime);
+public:
+	GameClient(const char* serverIP);
+	~GameClient();
 
-	void	MoveObjects(void);
-	void    MovePlayer(void);
+	//Players
+	void	CalculateVelocity(command_t *command, float frametime);
     void	MoveRemotePlayers(void);
 
+	//Game
 	void	AddClient(int local, int index, char *name);
 	void	RemoveClient(int index);
 	void	RemoveClients(void);
+	void	Shutdown(void);
+	void	CheckKeys(void);
+	void	Frame(void);
+	void	RunNetwork(int msec);
 
-	// Network.cpp
+	// Network
 	void	ReadPackets(void);
 	void	SendCommand(void);
 	void	SendRequestNonDeltaFrame(void);
 	void	ReadMoveCommand(dreamMessage *mes, clientData *client);
 	void	ReadDeltaMoveCommand(dreamMessage *mes, clientData *client);
 	void	BuildDeltaMoveCommand(dreamMessage *mes, clientData *theClient);
-
-	bool processUnbufferedInput(const Ogre::FrameEvent& evt);
-
-
-	// Variables
-
-	// Network variables
-	dreamClient *networkClient;
-
-	clientData *clientList;			// Client list
-	clientData *localClient;		// Pointer to the local client in the client list
-	int clients;
-
-	clientData inputClient;			// Handles all keyboard input
-
-	float frametime;
-	float rendertime;
-
-	char gamename[32];
-	bool init;
-
-	//bool mapdata[100][100];
-	int gameIndex;
-
-
-public:
-	GameClient(const char* serverIP);
-	~GameClient();
-
-    void createPlayer(int index);
-    virtual void createScene(void);
-    virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
-
-	// Client.cpp
-	void	Shutdown(void);
-	void	CheckKeys(void);
-	void	Frame(void);
-	void	RunNetwork(int msec);
-
-	// Network.cpp
 	void	StartConnection();
 	void	Connect(void);
 	void	Disconnect(void);
 	void	SendStartGame(void);
 
-	void	SetName(char *n)		{ strcpy(gamename, n); }
-	char	*GetName(void)			{ return gamename; }
+	//Ogre
+	bool processUnbufferedInput(const Ogre::FrameEvent& evt);
+    void createPlayer(int index);
+    virtual void createScene(void);
+    virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
 
-	void	SetGameIndex(int index)	{ gameIndex = index; }
-	int		GetGameIndex(void)		{ return gameIndex; }
-
-	clientData *GetClientList(void) { return clientList; }
-
-	clientData *GetClientPointer(int index);
-
-
-	GameClient *next;
-
+	// Network variables
+	dreamClient *networkClient;
 	const char* mServerIP;
 
+	//client Variables
+	clientData *clientList;			// Client list
+	clientData *localClient;		// Pointer to the local client in the client list
+	clientData inputClient;			// Handles all keyboard input
+	clientData *GetClientList(void) { return clientList; }
+	clientData *GetClientPointer(int index);
+
+	//time
+	float frametime;
+	float rendertime;
+	bool init;
 };
 
 #endif
