@@ -1,6 +1,9 @@
 #ifndef GAMESERVER_H
 #define GAMESERVER_H
 
+//set at 0.1 for a 1/10 dropped packet rate
+#define DROPRATE 0.0
+
 #include <string.h>
 
 

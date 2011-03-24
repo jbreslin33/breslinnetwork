@@ -502,8 +502,14 @@ void GameServer::SendCommand(void)
 		}
 	}
 
-	// Send messages to all clients
-	networkServer->SendPackets();
+	if ((rand() & 0x7fff) / 32768.0 < DROPRATE) {
+		LogString("Randomly dropped all client packets! DROPRATE SET AT:%d",DROPRATE);
+	}
+	else
+	{
+		// Send messages to all clients
+		networkServer->SendPackets();
+	}
 
 	// Store the sent command in history
 	for(toClient = clientList; toClient != NULL; toClient = toClient->next)
