@@ -11,6 +11,15 @@ void GameClient::createPlayer(int index)
     clientData *client = game->GetClientPointer(index);
 	client->myNode = node;
 }
+void GameClient::createServerPlayer(int index)
+{
+    Ogre::Entity* NinjaEntity = mSceneMgr->createEntity("ninja.mesh");
+    Ogre::SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+    node->attachObject(NinjaEntity);
+    clientData *client = game->GetClientPointer(index);
+    client->myServerNode = node;
+    LogString("createServerPlayer index:%d",index);
+}
 //-------------------------------------------------------------------------------------
 void GameClient::createScene(void)
 {
@@ -58,6 +67,11 @@ bool GameClient::processUnbufferedInput(const Ogre::FrameEvent& evt)
         keys[VK_RIGHT] = FALSE;
 	}
 
+	if (mKeyboard->isKeyDown(OIS::KC_V)) // toggle serverPlayerMovement
+	{
+		mServerPlayerToggle = !mServerPlayerToggle;
+	}
+
     return true;
 }
 //-------------------------------------------------------------------------------------
@@ -86,6 +100,7 @@ GameClient::GameClient(const char* serverIP)
  	frametime		= 0.0f;
  	rendertime		= 0.0f;
  	init			= false;
+	mServerPlayerToggle = false;
  }
 
  GameClient::~GameClient()
@@ -186,7 +201,21 @@ void GameClient::MoveRemotePlayers(void)
 	    client->myNode->translate  (transVector, Ogre::Node::TS_WORLD);
 	}
  }
+
+void GameClient::MoveServerPlayer(void)
+{
+	if(!localClient)
+		return;
  
+    Ogre::Vector3 transVector = Ogre::Vector3::ZERO;
+
+    transVector.x = localClient->serverFrame.origin.x;
+    transVector.y = localClient->serverFrame.origin.y;
+	
+	if (mServerPlayerToggle)
+		localClient->myServerNode->setPosition(transVector);
+}
+
 void GameClient::StartConnection()
 {
 	int ret = networkClient->Initialise("", mServerIP, 30004);
@@ -305,6 +334,8 @@ void GameClient::AddClient(int local, int ind, char *name)
 
 		createPlayer(ind);
 		clientList->next = NULL;
+        if (local)
+			createServerPlayer(ind);
 	}
 	else
 	{
@@ -336,6 +367,8 @@ void GameClient::AddClient(int local, int ind, char *name)
 		prev->next = list;
 
 		createPlayer(ind);
+        if (local)
+			createServerPlayer(ind);
 	}
 
 	// If we just joined the game, request a non-delta compressed frame
@@ -581,6 +614,7 @@ void GameClient::RunNetwork(int msec)
 	static int time = 0;
 	time += msec;
 
+	MoveServerPlayer();
 	MoveRemotePlayers();
 
 	// Framerate is too high

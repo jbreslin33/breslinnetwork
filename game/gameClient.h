@@ -66,6 +66,7 @@ typedef struct clientData
 	char		password[30];
 
 	Ogre::SceneNode *myNode;
+	Ogre::SceneNode *myServerNode;
 
 	clientData	*next;
 } clientData;
@@ -79,7 +80,7 @@ public:
 	//Players
 	void	CalculateVelocity(command_t *command, float frametime);
     void	MoveRemotePlayers(void);
-
+    void	MoveServerPlayer(void);
 	//Game
 	void	AddClient(int local, int index, char *name);
 	void	RemoveClient(int index);
@@ -104,6 +105,7 @@ public:
 	//Ogre
 	bool processUnbufferedInput(const Ogre::FrameEvent& evt);
     void createPlayer(int index);
+	void createServerPlayer(int index);
     virtual void createScene(void);
     virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
 
@@ -122,6 +124,9 @@ public:
 	float frametime;
 	float rendertime;
 	bool init;
+
+	//serverPlayer
+	bool mServerPlayerToggle;
 };
 
 #endif
