@@ -49,6 +49,9 @@ typedef struct
 	VECTOR2D	origin;
 	VECTOR2D	predictedOrigin;
 
+	int         realtime;
+	long        framenum;
+
 	int			msec;
 } command_t;
 

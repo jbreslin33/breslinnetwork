@@ -45,6 +45,9 @@ typedef struct
 	VECTOR2D vel;							// Velocity
 	VECTOR2D origin;						// Position
 
+	int realtime;
+	long framenum;
+
 	int msec;								// How long to run command (in ms)
 
 } command_t;

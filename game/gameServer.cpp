@@ -368,7 +368,7 @@ void GameServer::Frame(int msec)
 
 	if(servertime < realtime)
 		realtime = servertime;
-
+	LogString("a tick:%d",realtime);
 	SendCommand();
 }
 
@@ -499,6 +499,7 @@ void GameServer::SendCommand(void)
 		for(dataClient = clientList; dataClient != NULL; dataClient = dataClient->next)
 		{
 			BuildDeltaMoveCommand(&toClient->netClient->message, dataClient);
+			LogString("Just Called BuildDeltaMoveCommand");
 		}
 	}
 
@@ -579,6 +580,8 @@ void GameServer::BuildMoveCommand(dreamMessage *mes, clientData *client)
 	mes->WriteFloat(client->command.vel.x);
 	mes->WriteFloat(client->command.vel.y);
 
+
+
 	mes->WriteByte(client->command.msec);
 }
 
@@ -628,6 +631,9 @@ void GameServer::BuildDeltaMoveCommand(dreamMessage *mes, clientData *client)
 		mes->WriteFloat(client->command.vel.x);
 		mes->WriteFloat(client->command.vel.y);
 	}
+
+	mes->WriteShort(client->command.realtime);
+	mes->WriteLong(client->command.framenum);
 
 	mes->WriteByte(client->command.msec);
 }

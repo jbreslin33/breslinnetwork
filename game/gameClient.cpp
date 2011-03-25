@@ -247,6 +247,7 @@ void GameClient::ReadPackets(void)
 
 	while(ret = networkClient->GetPacket(mes.data, &address))
 	{
+		LogString("got message!");
 		mes.SetSize(ret);
 		mes.BeginReading();
 
@@ -278,7 +279,7 @@ void GameClient::ReadPackets(void)
 
 			for(clList = clientList; clList != NULL; clList = clList->next)
 			{
-//				LogString("Reading DELTAFRAME for client %d", clList->index);
+				LogString("Reading DELTAFRAME for client %d", clList->index);
 				ReadDeltaMoveCommand(&mes, clList);
 			}
 
@@ -524,6 +525,10 @@ void GameClient::ReadMoveCommand(dreamMessage *mes, clientData *client)
 	client->serverFrame.vel.x			= mes->ReadFloat();
 	client->serverFrame.vel.y			= mes->ReadFloat();
 
+	//Read realtime and ticknumber
+	client->serverFrame.realtime = mes->ReadShort();
+	client->serverFrame.framenum = mes->ReadLong();
+
 	// Read time to run command
 	client->serverFrame.msec = mes->ReadByte();
 
@@ -562,6 +567,7 @@ void GameClient::ReadDeltaMoveCommand(dreamMessage *mes, clientData *client)
 	// Origin
 	if(flags & CMD_ORIGIN)
 	{
+		LogString("Recieved CMD_ORIGIN From client %d:", client->index);
 		client->serverFrame.origin.x = mes->ReadFloat();
 		client->serverFrame.origin.y = mes->ReadFloat();
 
@@ -573,9 +579,18 @@ void GameClient::ReadDeltaMoveCommand(dreamMessage *mes, clientData *client)
 
 		client->command.vel.x = client->serverFrame.vel.x;
 		client->command.vel.y = client->serverFrame.vel.y;
+
+		//Read realtime and ticknumber
+		client->command.realtime = client->serverFrame.realtime;
+		client->command.framenum = client->serverFrame.framenum;
 	}
 
+	//Read realtime and ticknumber
+	client->serverFrame.realtime = mes->ReadShort();
+	client->serverFrame.framenum = mes->ReadLong();
+
 	// Read time to run command
+	LogString("Read Delta Move for Client %d: msec: %d", client->index, client->command.msec);
 	client->command.msec = mes->ReadByte();
 }
 
