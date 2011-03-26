@@ -628,8 +628,8 @@ void GameServer::BuildDeltaMoveCommand(dreamMessage *mes, clientData *client)
 		mes->WriteFloat(client->command.vel.y);
 	}
 
-	mes->WriteShort(client->command.realtime);
-	mes->WriteLong(client->command.framenum);
+	mes->WriteShort(realtime);
+	mes->WriteLong(framenum);
 
 	mes->WriteByte(client->command.msec);
 }

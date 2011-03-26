@@ -58,11 +58,12 @@ typedef struct
 typedef struct clientData
 {
 	command_t	frame[64];	// frame history
-	command_t	serverFrame;					// the latest frame from server
-	command_t	command;						// current frame's commands
+	command_t	serverFrame[10];					// the latest frame from server
+	command_t	command;                           // current frame's commands
+	command_t   serverPlayer;
 
 	int			index;
-
+	
 	VECTOR2D	startPos;
 	bool		team;
 	char		nickname[30];
@@ -126,6 +127,8 @@ public:
 	//time
 	float frametime;
 	float rendertime;
+	int	  tickIndex;
+
 	bool init;
 
 	//serverPlayer

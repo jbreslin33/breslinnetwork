@@ -99,6 +99,7 @@ GameClient::GameClient(const char* serverIP)
  	memset(&inputClient, 0, sizeof(clientData));
  	frametime		= 0.0f;
  	rendertime		= 0.0f;
+	tickIndex       = 0;
  	init			= false;
 	mServerPlayerToggle = false;
  }
@@ -209,8 +210,8 @@ void GameClient::MoveServerPlayer(void)
  
     Ogre::Vector3 transVector = Ogre::Vector3::ZERO;
 
-    transVector.x = localClient->serverFrame.origin.x;
-    transVector.y = localClient->serverFrame.origin.y;
+    transVector.x = localClient->serverPlayer.origin.x;
+    transVector.y = localClient->serverPlayer.origin.y;
 	
 	if (mServerPlayerToggle)
 		localClient->myServerNode->setPosition(transVector);
@@ -515,22 +516,22 @@ void GameClient::Disconnect(void)
 void GameClient::ReadMoveCommand(dreamMessage *mes, clientData *client)
 {
 	// Key
-	client->serverFrame.key				= mes->ReadByte();
+	client->serverFrame[0].key				= mes->ReadByte();
 
 	// Origin
-	client->serverFrame.origin.x		= mes->ReadFloat();
-	client->serverFrame.origin.y		= mes->ReadFloat();
-	client->serverFrame.vel.x			= mes->ReadFloat();
-	client->serverFrame.vel.y			= mes->ReadFloat();
+	client->serverFrame[0].origin.x		= mes->ReadFloat();
+	client->serverFrame[0].origin.y		= mes->ReadFloat();
+	client->serverFrame[0].vel.x		= mes->ReadFloat();
+	client->serverFrame[0].vel.y		= mes->ReadFloat();
 
 	//Read realtime and ticknumber
-	client->serverFrame.realtime = mes->ReadShort();
-	client->serverFrame.framenum = mes->ReadLong();
+	client->serverFrame[0].realtime = mes->ReadShort();
+	client->serverFrame[0].framenum = mes->ReadLong();
 
 	// Read time to run command
-	client->serverFrame.msec = mes->ReadByte();
+	client->serverFrame[0].msec = mes->ReadByte();
 
-	memcpy(&client->command, &client->serverFrame, sizeof(command_t));
+	memcpy(&client->command, &client->serverFrame[0], sizeof(command_t));
 
 	// Fill the history array with the position we got
 	for(int f = 0; f < COMMAND_HISTORY_SIZE; f++)
@@ -545,15 +546,19 @@ void GameClient::ReadDeltaMoveCommand(dreamMessage *mes, clientData *client)
 	int processedFrame;
 	int flags = 0;
 
+	if(tickIndex > 9)
+		tickIndex = 0;
+
+
 	// Flags
 	flags = mes->ReadByte();
 
 	// Key
 	if(flags & CMD_KEY)
 	{
-		client->serverFrame.key = mes->ReadByte();
+		client->serverFrame[tickIndex].key = mes->ReadByte();
 
-		client->command.key = client->serverFrame.key;
+		client->command.key = client->serverFrame[tickIndex].key;
 		LogString("Client %d: Read key %d", client->index, client->command.key);
 	}
 
@@ -565,29 +570,39 @@ void GameClient::ReadDeltaMoveCommand(dreamMessage *mes, clientData *client)
 	// Origin
 	if(flags & CMD_ORIGIN)
 	{
-		client->serverFrame.origin.x = mes->ReadFloat();
-		client->serverFrame.origin.y = mes->ReadFloat();
+		client->serverFrame[tickIndex].origin.x = mes->ReadFloat();
+		client->serverFrame[tickIndex].origin.y = mes->ReadFloat();
 
-		client->serverFrame.vel.x = mes->ReadFloat();
-		client->serverFrame.vel.y = mes->ReadFloat();
+		client->serverFrame[tickIndex].vel.x = mes->ReadFloat();
+		client->serverFrame[tickIndex].vel.y = mes->ReadFloat();
 
-		client->command.origin.x = client->serverFrame.origin.x;
-		client->command.origin.y = client->serverFrame.origin.y;
+		client->command.origin.x = client->serverFrame[tickIndex].origin.x;
+		client->command.origin.y = client->serverFrame[tickIndex].origin.y;
 
-		client->command.vel.x = client->serverFrame.vel.x;
-		client->command.vel.y = client->serverFrame.vel.y;
+		// save pos for jimmy's server guy
+		client->serverPlayer.origin.x = client->serverFrame[tickIndex].origin.x;
+		client->serverPlayer.origin.y = client->serverFrame[tickIndex].origin.y;
+
+		client->command.vel.x = client->serverFrame[tickIndex].vel.x;
+		client->command.vel.y = client->serverFrame[tickIndex].vel.y;
 
 		//Read realtime and ticknumber
-		client->command.realtime = client->serverFrame.realtime;
-		client->command.framenum = client->serverFrame.framenum;
+		client->command.realtime = client->serverFrame[tickIndex].realtime;
+		client->command.framenum = client->serverFrame[tickIndex].framenum;
 	}
 
 	//Read realtime and ticknumber
-	client->serverFrame.realtime = mes->ReadShort();
-	client->serverFrame.framenum = mes->ReadLong();
+	client->serverFrame[tickIndex].realtime = mes->ReadShort();
+	client->serverFrame[tickIndex].framenum = mes->ReadLong();
+
+	LogString("tickIndex %d", tickIndex);
+    LogString("realtime %d", client->serverFrame[tickIndex].realtime);
+	LogString("framenum %d", client->serverFrame[tickIndex].framenum);
 
 	// Read time to run command
 	client->command.msec = mes->ReadByte();
+
+	tickIndex++;
 }
 
 //-----------------------------------------------------------------------------
