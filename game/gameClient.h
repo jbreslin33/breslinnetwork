@@ -48,9 +48,12 @@ typedef struct
 	VECTOR2D	vel;
 	VECTOR2D	origin;
 	VECTOR2D	predictedOrigin;
+	VECTOR2D	prevDest;
 
 	int         realtime;
 	long        framenum;
+	int         curIndex;
+	int         curTick;
 
 	int			msec;
 } command_t;
@@ -85,6 +88,8 @@ public:
 	void	CalculateVelocity(command_t *command, float frametime);
     void	MoveRemotePlayers(void);
     void	MoveServerPlayer(void);
+	void	ProcessTick(clientData *client);
+
 	//Game
 	void	AddClient(int local, int index, char *name);
 	void	RemoveClient(int index);

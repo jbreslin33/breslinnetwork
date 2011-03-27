@@ -176,6 +176,49 @@ void GameClient::CheckKeys(void)
  	}
  }
 
+void GameClient::ProcessTick(clientData *client)
+{
+	VECTOR2D curDest;
+	bool flag;
+	int j;
+	int diffX;
+	int diffY;
+	int diffTime;
+
+	for(int i = 0; i < 10; i++) 
+	{
+		// set index to current array spot
+        j = i + client->command.curIndex;
+        
+		// loop back to start of array when we reach the end
+        if(j > 9)
+			j = j - 10;
+
+		// make sure we got a future tick and not an old one
+		if(client->serverFrame[j].framenum > client->command.curTick) {
+		   curDest = client->serverFrame[j].origin;
+		   client->command.curIndex = j;
+		   client->command.curTick = client->serverFrame[j].framenum;
+		   flag = true;
+		   break;
+		}
+	}
+
+	// if we get a tick calculate new velocity
+	if(flag) {
+		diffX = curDest.x - client->command.prevDest.x;
+	    diffY = curDest.x - client->command.prevDest.y;
+		diffTime = curDest.x - client->command.prevDest.x;
+        client->command.vel.x = diffX/diffTime;
+		client->command.vel.y = diffY/diffTime;
+	}
+	else {
+	   //keep same vel
+	}
+}
+
+
+
 void GameClient::MoveRemotePlayers(void)
 {
  	if(!localClient)
@@ -596,8 +639,8 @@ void GameClient::ReadDeltaMoveCommand(dreamMessage *mes, clientData *client)
 	client->serverFrame[tickIndex].framenum = mes->ReadLong();
 
 	LogString("tickIndex %d", tickIndex);
-    LogString("realtime %d", client->serverFrame[tickIndex].realtime);
-	LogString("framenum %d", client->serverFrame[tickIndex].framenum);
+    LogString("vel.x %f", client->serverFrame[tickIndex].vel.x);
+	LogString("vel.y %f", client->serverFrame[tickIndex].vel.y);
 
 	// Read time to run command
 	client->command.msec = mes->ReadByte();
